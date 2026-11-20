@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+setup.log
+_p*.txt
+android/build/
+*.keystore
