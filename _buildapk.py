@@ -26,7 +26,7 @@ os.makedirs(DIST, exist_ok=True)
 assets = os.path.join(BUILD, "assets")
 shutil.rmtree(assets, ignore_errors=True)
 os.makedirs(assets)
-for f in ("index.html", "data.js", "game.js"):
+for f in ("index.html", "data.js", "game.js", "ui.js", "style.css"):
     shutil.copyfile(os.path.join(ROOT, "web", f), os.path.join(assets, f))
 # 2) aapt2 link
 base = os.path.join(BUILD, "base.apk")
@@ -67,7 +67,7 @@ run([os.path.join(BT, "apksigner.bat"), "sign", "--ks", ks, "--ks-pass", KSP,
 r = run([os.path.join(BT, "apksigner.bat"), "verify", "--print-certs", apk])
 print((r.stdout or "")[:600])
 print("APK OK:", apk, os.path.getsize(apk), "bytes")
-media = r"C:/Users/omicron/discord-claude-bridge/media/chronofx.apk"
+media = r"C:/Users/omicron/discord-claude-bridge/media/chronofx-gui.apk"
 shutil.copyfile(apk, media)
 print("copied ->", media)
 

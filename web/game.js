@@ -11,6 +11,7 @@ for (const b of DATA.bank) BANKS[b[0]] = { cur: b[1], y0: b[2], y1: b[3],
     reserves0: b[4], reserves: b[4], deval: b[5],
     fallen: false, missed: false, attack: false };
 let S = null, LOG = [], OVER = false;
+const HIST = {}, EQSER = [];
 function emit(s) { LOG.push(String(s)); }
 function yname(y) { return y < 0 ? ("紀元前" + (-y) + "年") : (y + "年"); }
 function fmt_g(g) {
@@ -40,6 +41,8 @@ function reset() {
     for (const k in BANKS) { const b = BANKS[k];
         b.fallen = false; b.missed = false; b.attack = false;
         b.reserves = b.reserves0; }
+    for (const c in CURS) HIST[c] = [];
+    EQSER.length = 0; EQSER.push(equity());
 }
 function born(cid) { return CURS[cid].y0 <= S.year; }
 function alive(cid) { return born(cid) && S.year <= CURS[cid].y1; }
@@ -130,6 +133,10 @@ function advance_to(ny) {
         for (const e of DATA.events) if (e[0] === y) lines.push(...apply_event(e));
         lines.push(...year_end(y));
         S.year = y + 1;
+        for (const c in CURS) if (born(c)) {
+            const a = HIST[c] || (HIST[c] = []);
+            a.push(price(c)); if (a.length > 40) a.shift(); }
+        EQSER.push(equity()); if (EQSER.length > 40) EQSER.shift();
         if (equity() <= 0) return lines;
     }
     return lines;
@@ -392,23 +399,8 @@ function submit(raw) {
     return LOG.splice(0);
 }
 
-function initUI() {
-    const log = document.getElementById("log"), inp = document.getElementById("cmd");
-    function render(lines) {
-        for (const l of lines) {
-            const d = document.createElement("div");
-            if (/^(★★|▓▓|⚔|☠|★ GAME)/.test(l.trim())) d.className = "big";
-            d.textContent = l; log.appendChild(d); }
-        log.scrollTop = log.scrollHeight; }
-    function go(v) { v = v.trim(); if (!v) return; render(submit(v)); inp.value = ""; }
-    document.getElementById("go").addEventListener("click", () => go(inp.value));
-    inp.addEventListener("keydown", e => { if (e.key === "Enter") go(inp.value); });
-    for (const b of document.querySelectorAll(".q"))
-        b.addEventListener("click", () => {
-            if (b.dataset.c === "q") go("q"); else render(submit(b.dataset.c)); });
-    render(submit("new"));
-}
-if (typeof module !== "undefined" && module.exports)
-    module.exports = { newGame, submit, getState: () => S, BANKS, CURS,
-        equity, price, exposure, yname, done: () => !gameOn() };
-else if (typeof document !== "undefined") initUI();
+const API = { submit, getState: () => S, BANKS, CURS, HIST, EQSER,
+    equity, price, exposure, born, alive, hint, banks_line, fmt_g, fmtNum,
+    yname, net_line, pos_line, done: () => !gameOn(), newGame };
+if (typeof module !== "undefined" && module.exports) module.exports = API;
+else if (typeof document !== "undefined") window.CHRONO = API;
