@@ -14,6 +14,15 @@
 <main>
   <div id="left">
     <section id="era">
+      <div id="clockrow">
+        <button id="pp">⏸ 一時停止</button>
+        <button id="s60">1年=60秒</button>
+        <button id="s30">1年=30秒</button>
+        <button id="s10">1年=10秒</button>
+        <button id="s3">1年=3秒</button>
+        <div id="tickwrap"><div id="tickbar"></div></div>
+        <span id="nexty">—</span>
+      </div>
       <button id="n1">▶ 1年</button>
       <button id="nn">⏩ 次のニュースまで</button>
       <button id="n10">＋10年</button>
@@ -28,6 +37,11 @@
       <button id="tb">買う</button><button id="tball">全額買</button>
       <button id="ts">売る</button><button id="tsall">全売</button>
       <button id="tsh">売り建て</button><button id="tcv">買戻</button>
+    </section>
+    <section>
+      <h4>LIVE CHART <span id="chname" class="chname"></span></h4>
+      <div id="chart"></div>
+      <div class="clab" id="chlab"></div>
     </section>
     <section id="wallet">
       <div><div class="k">純資産</div><div class="v" id="net">—</div></div>

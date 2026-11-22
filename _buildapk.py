@@ -67,7 +67,7 @@ run([os.path.join(BT, "apksigner.bat"), "sign", "--ks", ks, "--ks-pass", KSP,
 r = run([os.path.join(BT, "apksigner.bat"), "verify", "--print-certs", apk])
 print((r.stdout or "")[:600])
 print("APK OK:", apk, os.path.getsize(apk), "bytes")
-media = r"D:/dev/discord-claude-bridge/media/chronofx-gui.apk"
+media = r"D:/dev/discord-claude-bridge/media/chronofx-live.apk"
 shutil.copyfile(apk, media)
 print("copied ->", media)
 

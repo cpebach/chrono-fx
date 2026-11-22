@@ -194,9 +194,22 @@ function trade(cmd) {
 }
 function run(cmd) {
     if (!cmd) return;
+    const pre = C.getState();
+    const y0 = pre ? pre.year : null, eq0 = pre ? C.equity() : 0;
+    const oldP = {};
+    if (pre) for (const cid in C.CURS) if (C.alive(cid)) oldP[cid] = C.price(cid);
     const out = C.submit(cmd);
+    if (cmd === "new") { CLK.from = {}; CLK.fromEq = C.equity(); }
+    else if (y0 !== null && C.getState().year > y0) {  // 年が進んだら旧価格から滑らかに動かし始める
+        const f = {};
+        for (const cid in C.CURS)
+            if (C.alive(cid)) f[cid] = (cid in oldP) ? oldP[cid] : C.price(cid);
+        CLK.from = f; CLK.fromEq = eq0;
+    }
+    CLK.left = CLK.yearMs;  // 手動送してもカウントダウンは振り出しへ
     handleLines(out);
     renderAll();
+    updBar();
     const inp = $("#cmd");
     if (inp) inp.value = "";
     if (C.done()) endOverlay();
@@ -204,8 +217,100 @@ function run(cmd) {
 function renderAll() {
     $("#year").textContent = C.yname(C.getState().year);
     renderWallet(); renderHoldings(); renderBanks();
-    renderSheet(); renderTicker();
+    renderSheet(); renderTicker(); renderChart();
     $("#hintline").textContent = C.net_line();
+}
+/* ===== リアルタイム時計（既定 1年=30秒）とライブチャート ===== */
+const CLK = { yearMs: 30000, left: 30000, on: true, from: {}, prevT: 0 };
+let CH = null;
+const SPEEDS = [["s60", 60000], ["s30", 30000], ["s10", 10000], ["s3", 3000]];
+function syncClockUI() {
+    for (const sp of SPEEDS) $("#" + sp[0]).classList.toggle("on", CLK.yearMs === sp[1]);
+    $("#pp").textContent = CLK.on ? "⏸ 一時停止" : "▶ 再開";
+    $("#pp").classList.toggle("on", !CLK.on);
+}
+function updBar() {
+    const f = (CLK.on && !C.done()) ? 1 - CLK.left / CLK.yearMs : 0;
+    $("#tickbar").style.width = (f * 100).toFixed(1) + "%";
+    $("#nexty").textContent = C.done() ? "歴史終了" :
+        !CLK.on ? "⏸ 一時停止中" : "次の年まで " + Math.ceil(CLK.left / 1000) + "秒";
+}
+function liveVal(cid, ts) {
+    const to = C.price(cid);
+    const from = (cid in CLK.from) ? CLK.from[cid] : to;
+    const t = 1 - Math.max(0, Math.min(1, CLK.left / CLK.yearMs));
+    const e = t * t * (3 - 2 * t);  // smoothstep
+    let v = from + (to - from) * e;
+    if (CLK.on && !C.done()) v *= 1 + 0.006 * Math.sin(ts / 850 + cid.charCodeAt(0)) +
+        0.004 * Math.sin(ts / 310 + cid.length * 7);
+    return Math.max(v, 1e-18);
+}
+function renderChart() {
+    const box = $("#chart"), cid = $("#cur").value, nm = $("#chname");
+    CH = null;
+    if (!cid || !C.alive(cid)) {
+        nm.textContent = ""; $("#chlab").textContent = "";
+        box.innerHTML = '<div class="dim">通貨を選ぶとライブレートが出る</div>';
+        return; }
+    const h = (C.HIST[cid] || []).slice();
+    const cur = C.price(cid);
+    if (!h.length || h[h.length - 1] !== cur) h.push(cur);
+    if (h.length < 2) {
+        nm.textContent = C.CURS[cid].name; $("#chlab").textContent = "";
+        box.innerHTML = '<div class="dim">まだ歴史が浅い。1年進むごとに線が伸びる</div>';
+        return; }
+    const W = 600, H = 175, P = 10;
+    const from = (cid in CLK.from) ? CLK.from[cid] : cur;
+    const all = h.concat([from]);
+    const lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
+    const l2 = Math.log(Math.max(lo * 0.99, 1e-18));
+    const h2 = Math.log(Math.max(hi * 1.01, lo * 1.05, 1e-9));
+    const Y = (v) => H - P - ((Math.log(Math.max(v, 1e-18)) - l2) /
+        Math.max(h2 - l2, 1e-9)) * (H - 2 * P);
+    const X = (i) => P + (i / (h.length - 1)) * (W - 2 * P);
+    const pts = h.map((v, i) => [X(i), Y(v)]);
+    const up = h[h.length - 1] >= h[0];
+    const col = up ? "#ff6b6b" : "#3ecf8e";
+    box.innerHTML = '<svg viewBox="0 0 ' + W + " " + H +
+        '" preserveAspectRatio="none">' +
+        '<polygon id="chfill" points="" fill="' +
+        (up ? "rgba(255,107,107,.13)" : "rgba(62,207,142,.13)") + '"/>' +
+        '<polyline id="chline" points="" fill="none" stroke="' + col +
+        '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<circle id="chdot" r="4" fill="' + col + '"/></svg>';
+    $("#chlab").textContent = C.yname(C.getState().year - (h.length - 1)) + " 〜 " +
+        C.yname(C.getState().year) + "　安 " + C.fmt_g(lo) + " ／ 高 " + C.fmt_g(hi) +
+        "/枚　・チャートは決算価格へ滑らか移動中（約定は決算価格）";
+    CH = { cid: cid, pts: pts, W: W, H: H, P: P, Y: Y,
+        line: box.querySelector("#chline"), fill: box.querySelector("#chfill"),
+        dot: box.querySelector("#chdot") };
+}
+function paintChart(ts) {
+    if (!CH) return;
+    if (CH.cid !== $("#cur").value) { renderChart(); if (!CH) return; }
+    const lv = liveVal(CH.cid, ts);
+    const y = Math.max(CH.P, Math.min(CH.H - CH.P, CH.Y(lv)));
+    const last = CH.pts.length - 1;
+    const pts = CH.pts.map((q, i) => q[0].toFixed(1) + "," +
+        (i === last ? y.toFixed(1) : q[1].toFixed(1))).join(" ");
+    CH.line.setAttribute("points", pts);
+    CH.fill.setAttribute("points", CH.P + "," + (CH.H - CH.P) + " " + pts +
+        " " + (CH.W - CH.P) + "," + (CH.H - CH.P));
+    CH.dot.setAttribute("cx", CH.pts[last][0].toFixed(1));
+    CH.dot.setAttribute("cy", y.toFixed(1));
+    $("#chname").textContent = C.CURS[CH.cid].name + "  " + C.fmt_g(lv) + "/枚";
+}
+function loop(ts) {  // 実時間の心拍。タブ非表示時はほぼ止まる（=自動セーブ的に安全）
+    const dt = CLK.prevT ? Math.min(1500, ts - CLK.prevT) : 0;
+    CLK.prevT = ts;
+    if (C.done() && CLK.on) { CLK.on = false; syncClockUI(); updBar(); }
+    if (CLK.on && !C.done()) {
+        CLK.left -= dt;
+        if (CLK.left <= 0) { CLK.left = CLK.yearMs; run("n 1"); }
+        updBar();
+    }
+    paintChart(ts);
+    requestAnimationFrame(loop);
 }
 function confetti() {
     const ov = $("#overlay");
@@ -245,13 +350,20 @@ function init() {
     btn("#qbtn", () => run("q"));
     for (const c of ["b", "ball", "s", "sall", "sh", "cv"])
         btn("#t" + c, () => trade(c));
-    $("#cur").addEventListener("change", renderSheet);
+    for (const sp of SPEEDS) btn("#" + sp[0], () => {
+        CLK.yearMs = sp[1]; CLK.left = sp[1]; syncClockUI(); updBar(); });
+    btn("#pp", () => {
+        if (!C.done()) CLK.on = !CLK.on; syncClockUI(); updBar(); });
+    $("#cur").addEventListener("change", () => { renderSheet(); renderChart(); });
     $("#cmd").addEventListener("keydown", (e) => {
         if (e.key === "Enter") run(e.target.value); });
     $("#again").addEventListener("click", () => {
         $("#overlay").className = "";
         $("#feed").innerHTML = ""; $("#log").innerHTML = ""; snap = {};
+        CLK.on = true; CLK.left = CLK.yearMs; syncClockUI();
         run("new"); });
     run("new");
+    syncClockUI(); updBar();
+    requestAnimationFrame(loop);
 }
 init();
