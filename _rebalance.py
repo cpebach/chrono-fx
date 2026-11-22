@@ -1,5 +1,5 @@
 import io, py_compile
-p = r"C:/Users/omicron/Desktop/chrono_fx/chronofx.py"
+p = r"D:/dev/chrono_fx/chronofx.py"
 s = io.open(p, encoding="utf-8").read()
 
 def rep(a, b):

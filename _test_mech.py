@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, r"C:/Users/omicron/Desktop/chrono_fx")
+sys.path.insert(0, r"D:/dev/chrono_fx")
 import random
 random.seed(1)
 import chronofx as cf

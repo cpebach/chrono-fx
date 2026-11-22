@@ -1,7 +1,7 @@
 # chronofx.py 本体（途中で切れた草稿）に _p1〜_p10 を継ぎ直し、既知の粗を直す
 import io, os, sys
 
-D = r"C:\Users\omicron\Desktop\chrono_fx"
+D = r"D:\dev\chrono_fx"
 head = io.open(os.path.join(D, "chronofx.py"), encoding="utf-8").read()
 mark = "必要銀行が既に倒れてい"
 head = head[:head.index(mark)]

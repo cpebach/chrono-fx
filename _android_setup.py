@@ -1,7 +1,7 @@
 import os, subprocess, sys, zipfile, urllib.request, shutil, time
 
 TOOLS = r"C:/Users/omicron/android-build"
-SDK = os.path.join(TOOLS, "android-sdk")
+SDK = r"C:/Users/omicron/android-tools/Sdk"  # consolidated; old android-build/android-sdk removed
 os.makedirs(TOOLS, exist_ok=True)
 
 def fetch(url, dst):

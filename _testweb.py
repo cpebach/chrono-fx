@@ -1,6 +1,6 @@
 import os, subprocess, sys
 
-WEB = r"C:/Users/omicron/Desktop/chrono_fx/web"
+WEB = r"D:/dev/chrono_fx/web"
 r = subprocess.run(["node", "--check", os.path.join(WEB, "game.js")],
                    capture_output=True, text=True, encoding="utf-8",
                    errors="replace", cwd=WEB)

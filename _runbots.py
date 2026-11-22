@@ -1,7 +1,7 @@
 import os, re, subprocess, sys
 
 PY = sys.executable
-GAME = r"C:/Users/omicron/Desktop/chrono_fx/chronofx.py"
+GAME = r"D:/dev/chrono_fx/chronofx.py"
 ENV = dict(os.environ, PYTHONIOENCODING="utf-8")
 pats = [r"GAME OVER", r"GAME CLEAR", r"経過 (\d+)年", r"純資産 (\S+)",
         r"倒した銀行 (\d)/8", r"Traceback"]

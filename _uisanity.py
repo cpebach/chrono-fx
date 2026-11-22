@@ -1,6 +1,6 @@
 import re
 
-W = r"C:/Users/omicron/Desktop/chrono_fx/web"
+W = r"D:/dev/chrono_fx/web"
 html = open(W + "/index.html", encoding="utf-8").read()
 ui = open(W + "/ui.js", encoding="utf-8").read()
 css = open(W + "/style.css", encoding="utf-8").read()

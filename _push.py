@@ -1,6 +1,6 @@
 import os, subprocess, sys, zipfile
 
-ROOT = r"C:/Users/omicron/Desktop/chrono_fx"
+ROOT = r"D:/dev/chrono_fx"
 z = zipfile.ZipFile(os.path.join(ROOT, "dist", "chrono-fx.apk"))
 names = z.namelist()
 for need in ("classes.dex", "assets/index.html", "assets/ui.js",

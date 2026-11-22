@@ -1,7 +1,7 @@
 import os, shutil, subprocess, sys
 
 PY = sys.executable
-GAME = r"C:/Users/omicron/Desktop/chrono_fx/chronofx.py"
+GAME = r"D:/dev/chrono_fx/chronofx.py"
 r = subprocess.run([PY, "-m", "py_compile", GAME], capture_output=True, text=True)
 print("compile rc=", r.returncode)
 r = subprocess.run([PY, GAME, "--bot", "3000", "--seed", "7"],

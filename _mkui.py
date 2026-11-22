@@ -1,6 +1,6 @@
 import os, subprocess, sys
 
-W = r"C:/Users/omicron/Desktop/chrono_fx/web"
+W = r"D:/dev/chrono_fx/web"
 parts = {
     "ui.js": ["_u1.js", "_u2.js", "_u3.js", "_u4.js", "_u5.js"],
     "style.css": ["_c1.css", "_c2.css", "_c3.css", "_c4.css"],

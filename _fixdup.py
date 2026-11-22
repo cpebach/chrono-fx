@@ -1,5 +1,5 @@
 import io, py_compile, sys
-p = r"C:/Users/omicron/Desktop/chrono_fx/chronofx.py"
+p = r"D:/dev/chrono_fx/chronofx.py"
 s = io.open(p, encoding="utf-8").read()
 dup = "攻勢で既に実現済み）\nるとイベントは見送られる（攻勢で既に実現済み）\nEVENTS"
 if dup not in s:

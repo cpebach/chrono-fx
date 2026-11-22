@@ -1,6 +1,6 @@
 import glob, os, subprocess, sys, zipfile
 
-ROOT = r"C:/Users/omicron/Desktop/chrono_fx"
+ROOT = r"D:/dev/chrono_fx"
 z = zipfile.ZipFile(os.path.join(ROOT, "dist", "chrono-fx.apk"))
 names = z.namelist()
 print("APK entries:", names)

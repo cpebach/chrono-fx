@@ -1,6 +1,6 @@
 import io, json, os, sys
 
-ROOT = r"C:/Users/omicron/Desktop/chrono_fx"
+ROOT = r"D:/dev/chrono_fx"
 WEB = os.path.join(ROOT, "web")
 sys.path.insert(0, ROOT)
 import chronofx as C

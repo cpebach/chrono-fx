@@ -1,6 +1,6 @@
 import os, shutil, subprocess, sys, zipfile
 
-ROOT = r"C:/Users/omicron/Desktop/chrono_fx"
+ROOT = r"D:/dev/chrono_fx"
 TOOLS = r"C:/Users/omicron/android-build"  # C側はjdkとkeystore残存(フォールバック用)
 JDK = r"D:/dev/android-build/jdk"
 SDK = r"D:/dev/android-tools/Sdk"  # 2026-11-22 Dドライブ移行済み

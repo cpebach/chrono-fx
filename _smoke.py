@@ -1,7 +1,7 @@
 import os, subprocess, sys
 
 PY = sys.executable
-GAME = r"C:/Users/omicron/Desktop/chrono_fx/chronofx.py"
+GAME = r"D:/dev/chrono_fx/chronofx.py"
 ENV = dict(os.environ, PYTHONIOENCODING="utf-8")
 script = "\n".join([
     "p",                # -700年の相場
