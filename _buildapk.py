@@ -1,9 +1,9 @@
 import os, shutil, subprocess, sys, zipfile
 
 ROOT = r"C:/Users/omicron/Desktop/chrono_fx"
-TOOLS = r"C:/Users/omicron/android-build"
-JDK = os.path.join(TOOLS, "jdk")
-SDK = os.path.join(TOOLS, "android-sdk")
+TOOLS = r"C:/Users/omicron/android-build"  # C側はjdkとkeystore残存(フォールバック用)
+JDK = r"D:/dev/android-build/jdk"
+SDK = r"D:/dev/android-tools/Sdk"  # 2026-11-22 Dドライブ移行済み
 BT = os.path.join(SDK, "build-tools", "34.0.0")
 AJAR = os.path.join(SDK, "platforms", "android-34", "android.jar")
 BUILD = os.path.join(ROOT, "android", "build")
@@ -54,7 +54,7 @@ with zipfile.ZipFile(base) as zin, zipfile.ZipFile(unsigned, "w", zipfile.ZIP_DE
 aligned = os.path.join(BUILD, "aligned.apk")
 run([os.path.join(BT, "zipalign.exe"), "-f", "4", unsigned, aligned])
 # 7) 署名キー（無ければ生成）と apksigner 署名
-ks = os.path.join(TOOLS, "chronofx.keystore")
+ks = r"D:/dev/android-build/chronofx.keystore"
 KSP = "pass:chronofx2026"
 if not os.path.exists(ks):
     run([os.path.join(JDK, "bin", "keytool.exe"), "-genkeypair", "-v",
@@ -67,7 +67,7 @@ run([os.path.join(BT, "apksigner.bat"), "sign", "--ks", ks, "--ks-pass", KSP,
 r = run([os.path.join(BT, "apksigner.bat"), "verify", "--print-certs", apk])
 print((r.stdout or "")[:600])
 print("APK OK:", apk, os.path.getsize(apk), "bytes")
-media = r"C:/Users/omicron/discord-claude-bridge/media/chronofx-gui.apk"
+media = r"D:/dev/discord-claude-bridge/media/chronofx-gui.apk"
 shutil.copyfile(apk, media)
 print("copied ->", media)
 
